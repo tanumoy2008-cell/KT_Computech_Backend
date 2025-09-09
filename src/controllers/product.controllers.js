@@ -4,7 +4,7 @@ import productModel from "../models/product.model.js"
 import { v2 as cloudinary } from "cloudinary";
 
 const productAdd = async (req,res) => {
-const { name, company, Subcategory, productDescription, price } = req.body;
+const { name, company, Subcategory, productDescription,Maincategory, price } = req.body;
     const File = req.file;
   if (File) {
     try {
@@ -15,6 +15,7 @@ const { name, company, Subcategory, productDescription, price } = req.body;
         name,
         company,
         Subcategory,
+        Maincategory,
         price,
         description: productDescription,
         productPic: result.secure_url,
