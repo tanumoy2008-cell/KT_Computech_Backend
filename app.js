@@ -18,24 +18,14 @@ app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
 
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",")
-  : [];
+const allowedOrigins = process.env.ALLOWED_ORIGINS;
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.warn(`🚫 Blocked CORS request from: ${origin}`);
-        callback(new Error("CORS not allowed for this origin"), false);
-      }
-    },
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
-  })
-);
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}))
 
 app.use(helmet());
 
