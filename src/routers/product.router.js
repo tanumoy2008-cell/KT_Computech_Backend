@@ -6,7 +6,8 @@ import multer from "multer"
 const router = express.Router()
 const upload = multer();
 
-router.post("/add", isLoggedInAdmin, upload.single("avatar"), tryCatch(productController.productAdd))
+router.post("/add", isLoggedInAdmin, upload.single("avatar"), tryCatch(productController.productAdd));
+router.get("/top-most-product", tryCatch(productController.topMostProduct));
 router.get("/top-product", tryCatch(productController.sendTopProduct))
 router.get("/productDetails", isLoggedInAdmin, tryCatch(productController.productDetsSender))
 router.get("/productSend", tryCatch(productController.productSendWithLimit))

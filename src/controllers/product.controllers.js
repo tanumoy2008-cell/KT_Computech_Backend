@@ -216,6 +216,14 @@ const productCount = async (req, res)=>{
   return res.status(200).json(count);
 }
 
+const topMostProduct = async (req, res)=>{
+  const topProduct = await productModel.findOne().sort({clicked : -1}).select("productPic name _id price off");
+  if(!topProduct){
+    return res.status(404).json({ message: "No product found" });
+  }
+  return res.status(200).json(topProduct);
+}
+
 export {
   productAdd, 
   productDetsSender, 
@@ -226,5 +234,6 @@ export {
   productInfo, 
   productUpdate, 
   productDelete, 
-  productCount
+  productCount,
+  topMostProduct
 };
