@@ -217,11 +217,19 @@ const productCount = async (req, res)=>{
 }
 
 const topMostProduct = async (req, res)=>{
-  const topProduct = await productModel.findOne().sort({clicked : -1}).select("productPic name _id price off");
-  if(!topProduct){
-    return res.status(404).json({ message: "No product found" });
-  }
-  return res.status(200).json(topProduct);
+  const filter = { off: { $gt: 0 } };
+    const topProducts = await productModel
+      .find(filter)
+      .sort({ off: -1 }) 
+      .select("productPic name _id price off")
+      .limit(6)
+      .lean(); 
+
+    if (!topProducts || topProducts.length === 0) {
+      return res.status(404).json({ message: "No offer product found" });
+    }
+
+    return res.status(200).json(topProducts);
 }
 
 export {

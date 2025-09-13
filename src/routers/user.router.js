@@ -27,6 +27,7 @@ router.post(
       .withMessage("Number must contain only digits"),
 
     body("email")
+      .notEmpty()
       .isEmail()
       .withMessage("Please provide a valid email"),
 
@@ -53,6 +54,21 @@ router.post(
   ],
   tryCatch(userController.userRegister)
 );
+
+router.post(
+  "/login",
+  [
+    body("email")
+      .notEmpty()
+      .isEmail()
+      .withMessage("Please provide a valid email"),
+
+    body("password")
+    .notEmpty()
+    .isLength({min: 8, max: 16})
+    
+  ]
+)
 
 
 export default router;

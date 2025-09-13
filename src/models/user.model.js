@@ -42,14 +42,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    otp: {
-        type: String,
-        default: null,
-    },
-    otpExpires: {
-        type: Date,
-        default: null,
-    },
     cart:[
         {
         productId: {
@@ -62,6 +54,14 @@ const userSchema = new mongoose.Schema({
                 default: 1,
         }
      }
+    ],
+    orderHistory: [
+        {
+         id:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref:"order"
+         }   
+        }
     ]
 },{timestamps: true});
 

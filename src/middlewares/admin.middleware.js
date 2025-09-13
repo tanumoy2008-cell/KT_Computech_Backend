@@ -4,7 +4,6 @@ import blackListeTokenModel from "../models/blackListToken.model.js"
 const isLoggedInAdmin = async (req, res, next) => {
   try {
     const token = req.cookies?.adminToken;
-    console.log(token)
     if (!token) {
       return res
         .status(401)
