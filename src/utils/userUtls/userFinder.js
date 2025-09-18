@@ -10,7 +10,7 @@ const userFinder = async ({
 }) => {
   try {
     if (!key || !query)
-      throw new NotFoundError("Key or query missing in adminFinder");
+      throw new NotFoundError("Key or query missing in userFinder");
 
     let selectFields = select || (includePassword ? "+password" : "-password");
     let userQuery = userModel.findOne({ [key]: query }).select(selectFields);

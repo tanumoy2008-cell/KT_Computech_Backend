@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
+        select: false,
     },
     phoneNumber: {
         type: Number,
@@ -25,7 +26,7 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        requred: true,
+        required: true,
         unique: true,
         index: true,
     },
@@ -35,12 +36,12 @@ const userSchema = new mongoose.Schema({
     },
     pinCode: {
         type: Number,
-        required: true,
         index: true,
+        default: null
     },
     address:{
         type: String,
-        required: true,
+        default: null
     },
     cart:[
         {
@@ -57,12 +58,18 @@ const userSchema = new mongoose.Schema({
     ],
     orderHistory: [
         {
-         id:{
             type: mongoose.Schema.Types.ObjectId,
-            ref:"order"
-         }   
+            ref: "order"
         }
-    ]
+    ],
+    otp: {
+        type: String,
+        default: null,
+    },
+    otpExpires: {
+        type: Date,
+        default: null,
+    }
 },{timestamps: true});
 
 userSchema.methods.generateToken = function(){

@@ -1,7 +1,7 @@
 import userModel from "../models/user.model.js"
 import { BadRequestError } from "../utils/error.js"
 const userCreater = async ({firstName, lastName, password, number, email, altnumber, pinCode, address, otp, otpExpires}) => {
-    if(!firstName || !lastName || !password || !number || !email || !altnumber || !pinCode || !address || !otp || !otpExpires){
+    if(!firstName || !lastName || !password || !number || !email || !otp || !otpExpires){
         throw new BadRequestError();
     }
     const hasedPassword = await userModel.hashPassword(password);
@@ -13,11 +13,13 @@ const userCreater = async ({firstName, lastName, password, number, email, altnum
         },
         email,
         password: hasedPassword,
-        number, 
+        phoneNumber: number, 
         email, 
-        altnumber, 
+        alternateNumber: altnumber, 
         pinCode, 
-        address
+        address,
+        otp,
+        otpExpires
     })
     return user;
 }
