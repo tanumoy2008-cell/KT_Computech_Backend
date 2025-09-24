@@ -18,6 +18,7 @@ const isLoggedInUser = async (req, res, next) => {
     if (!req.user) {
       return res.status(500).json({ message: "User not found!" });
     }
+    req.token = token;
     next();
   } catch (err) {
     console.error(err);

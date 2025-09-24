@@ -49,7 +49,7 @@ router.get(
 )
 
 router.post(
-    "/logOut",
+    "/logout",
     isLoggedInAdmin, 
     tryCatch(adminController.adminLogOut)
 )

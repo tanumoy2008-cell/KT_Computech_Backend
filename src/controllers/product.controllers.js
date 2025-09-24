@@ -33,74 +33,110 @@ const { name, company, Subcategory, productDescription,Maincategory, price } = r
 }
 
 const productDetsSender = async (req, res) => {
-  const start = parseInt(req.query.start) || 0;
-  const limit = parseInt(req.query.limit) || 11;
-  const query = req.query.query?.trim() || "";
-  const category = req.query.category?.trim() || "";
-
-  let filter = {};
-
-  if (query) {
-    filter.$or = [
-      { name: { $regex: query, $options: "i" } },
-      { company: { $regex: query, $options: "i" } },
-      { category: { $regex: query, $options: "i" } },
-    ];
-  }
-
-  if (category) {
-    filter.category = category;
-  }
-
-  let results = await productModel.find(filter)
-    .skip(start)
-    .limit(limit + 1)
-    .select("name company _id category price")
-    .sort({ createdAt: -1 });
-
-  const hasMore = results.length > limit;
-  if (hasMore) results.pop();
-
-  res.json({
-    product: results,
-    hasMore,
-    nextStart: hasMore ? start + limit : null,
-  });
-};
-
-const productSendWithLimit = async (req,res) => {
-  const start = parseInt(req.query.start) || 0;
-  const limit = parseInt(req.query.limit) || 12;
-  const query = req.query.query?.trim() || "";
-  const Subcategory = req.query.Subcategory?.trim() || "";
+  try {
+    const start = parseInt(req.query.start) || 0;
+    const limit = parseInt(req.query.limit) || 12;
+    const query = req.query.query?.trim() || "";
+    const Subcategory = req.query.Subcategory?.trim() || "";
     const Maincategory = req.query.Maincategory?.trim() || "";
 
     if (!Maincategory) {
       return res.json({
         product: [],
+        subcategories: [{ key: "", label: "All Products" }],
+        maincategories: [],
         hasMore: false,
         nextStart: null,
       });
     }
 
-    let filter = {};
-
-    if (Maincategory !== "all") {
-      filter.Maincategory = Maincategory;
-    }
+    let productFilter = {};
+    if (Maincategory !== "all") productFilter.Maincategory = Maincategory;
 
     if (query) {
-      filter.$or = [
+      productFilter.$or = [
         { name: { $regex: query, $options: "i" } },
         { company: { $regex: query, $options: "i" } },
       ];
     }
 
-    if (Subcategory) {
-      filter.Subcategory = Subcategory;
+    if (Subcategory) productFilter.Subcategory = Subcategory;
+
+    let results = await productModel
+      .find(productFilter)
+      .skip(start)
+      .limit(limit + 1)
+      .select("name company _id price productPic Maincategory Subcategory") 
+      .sort({ createdAt: -1 });
+
+    const hasMore = results.length > limit;
+    if (hasMore) results.pop();
+
+    let subcategoryFilter = {};
+    if (Maincategory !== "all") subcategoryFilter.Maincategory = Maincategory;
+    const subcategoriesFromDB = await productModel.distinct("Subcategory", subcategoryFilter);
+    const uniqueSubcategories = [
+      { key: "", label: "All Products" },
+      ...subcategoriesFromDB
+        .map((sub) => sub.trim().toLowerCase())
+        .filter((v, i, a) => a.indexOf(v) === i)
+        .map((sub) => ({
+          key: sub,
+          label: sub.charAt(0).toUpperCase() + sub.slice(1),
+        })),
+    ];
+
+    const maincategoriesFromDB = await productModel.distinct("Maincategory");
+    const uniqueMaincategories = [
+      "all",
+      ...maincategoriesFromDB.map((m) => m.trim()),
+    ];
+
+    res.json({
+      product: results,
+      subcategories: uniqueSubcategories,
+      maincategories: uniqueMaincategories,
+      hasMore,
+      nextStart: hasMore ? start + limit : null,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+
+const productSendWithLimit = async (req, res) => {
+  try {
+    const start = parseInt(req.query.start) || 0;
+    const limit = parseInt(req.query.limit) || 12;
+    const query = req.query.query?.trim() || "";
+    const Subcategory = req.query.Subcategory?.trim() || "";
+    const Maincategory = req.query.Maincategory?.trim() || "";
+
+    if (!Maincategory) {
+      return res.json({
+        product: [],
+        subcategories: [{ key: "", label: "All Products" }],
+        hasMore: false,
+        nextStart: null,
+      });
     }
 
-    let results = await productModel.find(filter)
+    let productFilter = {};
+    if (Maincategory !== "all") productFilter.Maincategory = Maincategory;
+
+    if (query) {
+      productFilter.$or = [
+        { name: { $regex: query, $options: "i" } },
+        { company: { $regex: query, $options: "i" } },
+      ];
+    }
+
+    if (Subcategory) productFilter.Subcategory = Subcategory;
+
+    let results = await productModel
+      .find(productFilter)
       .skip(start)
       .limit(limit + 1)
       .select("name company _id price productPic")
@@ -109,12 +145,36 @@ const productSendWithLimit = async (req,res) => {
     const hasMore = results.length > limit;
     if (hasMore) results.pop();
 
+    let subcategoryFilter = {};
+    if (Maincategory !== "all") subcategoryFilter.Maincategory = Maincategory;
+
+    const subcategoriesFromDB = await productModel.distinct(
+      "Subcategory",
+      subcategoryFilter
+    );
+
+    const uniqueSubcategories = [
+      { key: "", label: "All Products" },
+      ...subcategoriesFromDB
+        .map((sub) => sub.trim().toLowerCase())
+        .filter((v, i, a) => a.indexOf(v) === i)
+        .map((sub) => ({
+          key: sub,
+          label: sub.charAt(0).toUpperCase() + sub.slice(1),
+        })),
+    ];
+
     res.json({
       product: results,
+      subcategories: uniqueSubcategories,
       hasMore,
       nextStart: hasMore ? start + limit : null,
     });
-}
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
 
 const product = async (req,res)=>{
     const {id} = req.params;
@@ -134,7 +194,7 @@ const clickOnProduct = async (req, res)=>{
 }
 
 const sendTopProduct = async (req, res)=>{
-  const topProduct = await productModel.find().sort({clicked: -1}).limit(8).select("productPic name price _id").lean();
+  const topProduct = await productModel.find().sort({clicked: -1}).limit(8).select("productPic company name price _id").lean();
   return res.status(200).json(topProduct)
 }
 
@@ -221,7 +281,7 @@ const topMostProduct = async (req, res)=>{
     const topProducts = await productModel
       .find(filter)
       .sort({ off: -1 }) 
-      .select("productPic name _id price off")
+      .select("productPic company name _id price off")
       .limit(6)
       .lean(); 
 

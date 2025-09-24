@@ -156,7 +156,7 @@ const verifyOtp = async (req, res)=>{
      res.cookie("userToken", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite: "none", // change to 'none' if using cross-site cookies
+          sameSite: "lax", // change to 'none' if using cross-site cookies
           maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
@@ -172,9 +172,50 @@ const getProfile = async (req, res)=>{
     res.status(200).json({metaData: req.user})
 };
 
+const logOut = async (req, res)=> {
+    const token = req.token;
+    await blackListeTokenModel.create({token});
+    return res.status(200).json({message: "User LogOut Successfully"});
+}
+
+const addProductInCart = async (req, res)=> {
+    try {
+    const userId = req.user.id;
+    const { productId } = req.body;
+
+    if (!productId) {
+      return res.status(400).json({ message: "Product ID is required" });
+    }
+
+    const user = await userModel.findById(userId);
+
+    const existingProduct = user.cart.find(
+      (item) => item.productId.toString() === productId
+    );
+
+    if (existingProduct) {
+      existingProduct.quantity += 1;
+    } else {
+      user.cart.push({ productId, quantity: 1 });
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Product added to cart successfully",
+      cart: user.cart,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+}
+
 export {
     userRegister,
     userLogin,
     verifyOtp,
-    getProfile
+    getProfile,
+    logOut,
+    addProductInCart
 }
