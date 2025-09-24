@@ -156,7 +156,7 @@ const verifyOtp = async (req, res)=>{
      res.cookie("userToken", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite: "lax", // change to 'none' if using cross-site cookies
+          sameSite: "none", // change to 'none' if using cross-site cookies
           maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
