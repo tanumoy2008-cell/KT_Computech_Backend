@@ -16,16 +16,22 @@ router.get(
   tryCatch(cartController.cartInfo)
 )
 
-router.post(
+router.patch(
   "/increase-quantity",
   isLoggedInUser,
   tryCatch(cartController.addQuantityOfPerticularProduct)
 )
 
-router.post(
+router.patch(
   "/decrease-quantity",
   isLoggedInUser,
   tryCatch(cartController.reduceQuantityOfPerticularProduct)
+)
+
+router.delete(
+  "/delete-product",
+  isLoggedInUser,
+  tryCatch(cartController.removeProductFromCart)
 )
 
 export default router;

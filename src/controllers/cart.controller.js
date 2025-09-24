@@ -162,10 +162,38 @@ const reduceQuantityOfPerticularProduct = async (req, res) => {
     });
 }
 
+const removeProductFromCart = async (req, res)=>{
+  const userId = req.user.id;
+  const { productId } = req.body;
+  if (!productId) {
+      return res.status(400).json({ message: "Product ID is required" });
+    }
+    const user = await userModel.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const cartIndex = user.cart.findIndex(
+      (item) => item.productId.toString() === productId
+    );
+
+    if (cartIndex === -1) {
+      return res.status(404).json({ message: "Product not found in cart" });
+    }
+
+    user.cart.splice(cartIndex, 1);
+    await user.save();
+
+    return res.status(200).json({
+      message: "Product removed from cart successfully",
+    });
+}
 
 export {
     addProductInCart,
     cartInfo,
     addQuantityOfPerticularProduct,
-    reduceQuantityOfPerticularProduct
+    reduceQuantityOfPerticularProduct,
+    removeProductFromCart
 }
