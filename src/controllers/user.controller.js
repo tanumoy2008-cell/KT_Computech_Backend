@@ -7,6 +7,7 @@ import {sendEmail} from "../utils/EmailUtils/EmailFeature.js"
 import * as EmailTemplates from "../Templates/EmailTemplates.js"
 import userModel from "../models/user.model.js"
 import cleanUser from "../utils/userUtls/cleanUpUser.js";
+import blackListeTokenModel from "../models/blackListToken.model.js"
 
 const userRegister = async (req, res)=>{
     const errors = validationResult(req);
@@ -178,38 +179,6 @@ const logOut = async (req, res)=> {
     return res.status(200).json({message: "User LogOut Successfully"});
 }
 
-const addProductInCart = async (req, res)=> {
-    try {
-    const userId = req.user.id;
-    const { productId } = req.body;
-
-    if (!productId) {
-      return res.status(400).json({ message: "Product ID is required" });
-    }
-
-    const user = await userModel.findById(userId);
-
-    const existingProduct = user.cart.find(
-      (item) => item.productId.toString() === productId
-    );
-
-    if (existingProduct) {
-      existingProduct.quantity += 1;
-    } else {
-      user.cart.push({ productId, quantity: 1 });
-    }
-
-    await user.save();
-
-    return res.status(200).json({
-      message: "Product added to cart successfully",
-      cart: user.cart,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Something went wrong" });
-  }
-}
 
 export {
     userRegister,
@@ -217,5 +186,4 @@ export {
     verifyOtp,
     getProfile,
     logOut,
-    addProductInCart
 }

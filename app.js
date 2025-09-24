@@ -11,6 +11,7 @@ import paymentRouter from "./src/routers/payment.router.js";
 import connectionWithRetry from "./src/db/mongoose.connection.js";
 import pinCodeRouter from "./src/routers/pinCode.router.js";
 import messageRouter from "./src/routers/resendMessage.router.js";
+import cartRouter from "./src/routers/cart.router.js";
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use("/api/product", productRouter)
 app.use("/api/payment", paymentRouter)
 app.use("/api/pinCode", pinCodeRouter)
 app.use("/api/message", messageRouter)
+app.use("/api/cart", cartRouter)
 
 const Port = process.env.PORT || 3000;
 

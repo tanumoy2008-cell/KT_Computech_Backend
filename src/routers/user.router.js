@@ -115,11 +115,5 @@ router.post(
   tryCatch(userController.logOut)
 )
 
-router.post(
-  "/add-product-in-cart",
-  isLoggedInUser,
-  tryCatch(userController.addProductInCart)
-)
-
 
 export default router;

@@ -14,7 +14,8 @@ const isLoggedInUser = async (req, res, next) => {
       return res.status(401).json({ message: "An Unathorized access!" });
     }
     const decoded = jwt.verify(token, process.env.JWT_KEY);
-    req.user = await userFinder({key: "_id", query: decoded.id, select: "-__v -_id -password -createdAt -updatedAt -cart -orderHistory -otp -otpExpires"})
+    const user = await userFinder({key: "_id", query: decoded.id, select: "-__v -password -createdAt -updatedAt -cart -orderHistory -otp -otpExpires"})
+    req.user = user;
     if (!req.user) {
       return res.status(500).json({ message: "User not found!" });
     }
